@@ -23,13 +23,13 @@ private:
     int score;
 
 public:
-    Table();
+    Table(SDL_Window* window, SDL_Renderer* renderer);
     ~Table();
 
     void initialize_balls();
     void reset_balls();
     void initialize_pockets();
-    void initialize_SDL();
+    void initialize_SDL_resources();
     void process_input();
     void check_collisions();
     void check_pockets();

@@ -5,13 +5,15 @@
 #include <vector>
 #include <iostream>
 
-Table::Table()
+Table::Table(SDL_Window* win, SDL_Renderer* rend)
     : is_running(true),
       cue_ball({100, 200}, {255, 255, 255, 255}),
-      score(0) {
+      score(0),
+      window(win),
+      renderer(rend) {
     initialize_balls();
     initialize_pockets();
-    initialize_SDL();
+    initialize_SDL_resources();  // NEW: moved font loading here
 }
 
 Table::~Table() {
@@ -53,38 +55,10 @@ void Table::initialize_pockets() {
     };
 }
 
-void Table::initialize_SDL() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0){
-        std::cerr << "SDL Initialization Error: " << SDL_GetError() << "\n";
-        exit(EXIT_FAILURE);
-    }
-
-    if (TTF_Init() == -1){
-        std::cerr << "SDL_ttf Initialization Error: " << TTF_GetError() << "\n";
-        SDL_Quit();
-        exit(EXIT_FAILURE);
-    }
-
+void Table::initialize_SDL_resources() {
     font = TTF_OpenFont("assets/FSEX302.ttf", 24);
-    if (!font){
+    if (!font) {
         std::cerr << "Font Loading Error: " << TTF_GetError() << "\n";
-        TTF_Quit();
-        SDL_Quit();
-        exit(EXIT_FAILURE);
-    }
-
-    window = SDL_CreateWindow("9 Ball Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TABLE_WIDTH, TABLE_HEIGHT, SDL_WINDOW_SHOWN);
-    if (!window){
-        std::cerr << "Window Creation Error: " << SDL_GetError() << "\n";
-        SDL_Quit();
-        exit(EXIT_FAILURE);
-    }
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer){
-        std::cerr << "Renderer Creation Error: " << SDL_GetError() << "\n";
-        SDL_DestroyWindow(window);
-        SDL_Quit();
         exit(EXIT_FAILURE);
     }
 }
