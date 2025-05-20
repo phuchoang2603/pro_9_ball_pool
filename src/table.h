@@ -23,9 +23,11 @@ private:
     int score;
 
 public:
+    bool pause_requested = false;
+    bool return_to_main_menu = false;
     Table(SDL_Window* window, SDL_Renderer* renderer);
-    ~Table();
 
+    void show_pause_menu();
     void initialize_balls();
     void reset_balls();
     void initialize_pockets();

@@ -1,4 +1,5 @@
 #include "table.h"
+#include "pause_scene.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
@@ -14,14 +15,6 @@ Table::Table(SDL_Window* win, SDL_Renderer* rend)
     initialize_balls();
     initialize_pockets();
     initialize_SDL_resources();  // NEW: moved font loading here
-}
-
-Table::~Table() {
-    TTF_CloseFont(font);
-    TTF_Quit();
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
 }
 
 void Table::initialize_balls() {
@@ -93,6 +86,9 @@ void Table::process_input() {
                     break;
                 case SDLK_DOWN:
                     cue.setPower(std::max(cue.getPower() - power_step, min_power));
+                    break;
+                case SDLK_ESCAPE:
+                    pause_requested = true;
                     break;
             }
         }
@@ -215,8 +211,37 @@ void Table::update() {
 void Table::run() {
     while (is_running) {
         process_input();
+
+        if (pause_requested) {
+            show_pause_menu();
+            if (!is_running) break;
+        }
+
         update();
         render();
         SDL_Delay(1000 / FPS);
     }
+}
+
+
+void Table::show_pause_menu() {
+    PauseScene pause(renderer, font);
+    while (!pause.is_finished() && !pause.should_quit() && !pause.should_return_to_menu()) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            pause.handle_event(event);
+        }
+        pause.update();
+        pause.render(renderer);
+        SDL_Delay(1000 / FPS);
+    }
+
+    if (pause.should_quit()) {
+        is_running = false;
+    } else if (pause.should_return_to_menu()) {
+        return_to_main_menu = true;
+        is_running = false;
+    }
+
+    pause_requested = false; // reset
 }
