@@ -6,15 +6,16 @@
 #include <vector>
 #include <iostream>
 
-Table::Table(SDL_Window* win, SDL_Renderer* rend)
-    : is_running(true),
+Table::Table(SDL_Window* win, SDL_Renderer* rend, TTF_Font* fnt)
+    : window(win),                 // Initialize window
+      renderer(rend),              // Initialize renderer
+      game_font(fnt),              // Initialize game_font
+      is_running(true),
       cue_ball({100, 200}, {255, 255, 255, 255}),
-      score(0),
-      window(win),
-      renderer(rend) {
+      score(0)
+{
     initialize_balls();
     initialize_pockets();
-    initialize_SDL_resources();  // NEW: moved font loading here
 }
 
 void Table::initialize_balls() {
@@ -46,14 +47,6 @@ void Table::initialize_pockets() {
         {(int)(TABLE_WIDTH/2), offset},
         {(int)(TABLE_WIDTH/2), TABLE_HEIGHT - offset}
     };
-}
-
-void Table::initialize_SDL_resources() {
-    font = TTF_OpenFont("assets/FSEX302.ttf", 24);
-    if (!font) {
-        std::cerr << "Font Loading Error: " << TTF_GetError() << "\n";
-        exit(EXIT_FAILURE);
-    }
 }
 
 void Table::process_input() {
@@ -131,7 +124,7 @@ void Table::check_pockets() {
 void Table::render_text(const std::string& str, int x, int y) {
     SDL_Color text_color = {255, 255, 255, 255}; // white
 
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font, str.c_str(), text_color);
+    SDL_Surface* text_surface = TTF_RenderText_Solid(game_font, str.c_str(), text_color);
     if (!text_surface) {
         std::cerr << "Text Rendering Error: " << TTF_GetError() << "\n";
         return;
@@ -165,7 +158,6 @@ void Table::render() {
 
     render_text("Score: "+std::to_string(score), 40, 20);
     render_text("Power: "+std::to_string((int)cue.getPower()), TABLE_WIDTH-150, 20);
-    render_text("[G] to toggle guideline", 100, TABLE_HEIGHT-35);
 
     SDL_RenderPresent(renderer);
 }
@@ -208,6 +200,21 @@ void Table::update() {
     }
 }
 
+void Table::show_pause_menu() {
+    PauseScene pause(renderer, game_font);
+    
+    bool global_quit_in_pause = execute_scene(pause, renderer);
+
+    if (global_quit_in_pause || pause.should_quit()) {
+        is_running = false;
+    } else if (pause.should_return_to_menu()) { //
+        return_to_main_menu = true;
+        is_running = false;
+    }
+
+    pause_requested = false; // Reset the request
+}
+
 void Table::run() {
     while (is_running) {
         process_input();
@@ -221,27 +228,4 @@ void Table::run() {
         render();
         SDL_Delay(1000 / FPS);
     }
-}
-
-
-void Table::show_pause_menu() {
-    PauseScene pause(renderer, font);
-    while (!pause.is_finished() && !pause.should_quit() && !pause.should_return_to_menu()) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            pause.handle_event(event);
-        }
-        pause.update();
-        pause.render(renderer);
-        SDL_Delay(1000 / FPS);
-    }
-
-    if (pause.should_quit()) {
-        is_running = false;
-    } else if (pause.should_return_to_menu()) {
-        return_to_main_menu = true;
-        is_running = false;
-    }
-
-    pause_requested = false; // reset
 }

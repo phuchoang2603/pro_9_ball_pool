@@ -5,11 +5,12 @@ PauseScene::PauseScene(SDL_Renderer* renderer, TTF_Font* font)
       wants_to_return_to_menu(false) {}
 
 void PauseScene::on_select(int selected_index) {
-    if (selected_index == 0) { // "Resume"
-        scene_finished = true;
-    } else if (selected_index == 1) { // "Main Menu"
-        wants_to_return_to_menu = true;
-        // scene_finished = true; // Or set finished to exit pause loop
+    if (selected_index == 0) {
+        this->scene_finished = true;
+        this->wants_to_return_to_menu = false;
+    } else if (selected_index == 1) {
+        this->wants_to_return_to_menu = true;
+        this->scene_finished = true;
     }
 }
 

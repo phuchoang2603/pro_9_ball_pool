@@ -2,6 +2,9 @@
 #define UTILITY_H
 
 #include <SDL2/SDL.h>
+#include <limits>
+
+#include "scene.h"
 
 constexpr int TABLE_WIDTH = 800;
 constexpr int TABLE_HEIGHT = 400;
@@ -22,5 +25,7 @@ struct Velocity {
 
 // used to draw balls and pockets
 void render_draw_filled_circle(SDL_Renderer* renderer, int center_x, int center_y, int radius);
+
+bool execute_scene(Scene& scene, SDL_Renderer* renderer);
 
 #endif
