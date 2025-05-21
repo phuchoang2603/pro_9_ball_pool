@@ -38,6 +38,7 @@ private:
     void check_pockets();
     void render_text(SDL_Renderer* renderer, const std::string& str, int x, int y);
     bool is_ball_in_pocket(const Position& ball_pos);
+    bool are_all_balls_stationary() const;
 
     void show_pause_menu_modal();
 
@@ -54,6 +55,9 @@ private:
     // State flags
     bool return_to_main_menu_flag_;
     bool app_should_quit_flag_;
+    bool shot_in_progress_;
+    int balls_pocketed_this_shot_;
+    bool cue_ball_was_struck_this_turn_;
 };
 
 #endif

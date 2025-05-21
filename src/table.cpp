@@ -8,7 +8,10 @@ Table::Table(SDL_Renderer* renderer, TTF_Font* font, Difficulty difficulty)
       cue_ball({100, 200}, {255, 255, 255, 255}),
       score(0),
       return_to_main_menu_flag_(false),
-      app_should_quit_flag_(false) {
+      app_should_quit_flag_(false),
+      shot_in_progress_(false),
+      balls_pocketed_this_shot_(0),
+      cue_ball_was_struck_this_turn_(false){
     initialize_balls();
     initialize_pockets();
 
@@ -36,11 +39,16 @@ void Table::process_game_input(SDL_Event& e) {
 
     if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
         if (!cue_ball.is_moving()) {
-            int mouse_x, mouse_y;
-            SDL_GetMouseState(&mouse_x, &mouse_y);
-            float angle = cue.getAngle();
-            cue_ball.apply_force(angle, cue.getPower());
-        }
+             int mouse_x, mouse_y;
+             SDL_GetMouseState(&mouse_x, &mouse_y);
+             float angle = cue.getAngle();
+             cue_ball.apply_force(angle, cue.getPower());
+
+            // Start of a new shot sequence
+            this->shot_in_progress_ = true;
+            this->balls_pocketed_this_shot_ = 0;
+            this->cue_ball_was_struck_this_turn_ = true; // Player has taken an action
+         }
     }
 
     if (e.type == SDL_KEYDOWN) {
@@ -67,6 +75,17 @@ void Table::update() {
     if (is_ball_in_pocket(cue_ball.get_position())) {
         score -= 5;
         cue_ball.reset();
+    }
+
+    if (shot_in_progress_ && are_all_balls_stationary()) {
+        shot_in_progress_ = false;
+
+        // Apply penalty if a shot was made and no object balls were pocketed
+        if (cue_ball_was_struck_this_turn_ && balls_pocketed_this_shot_ == 0) {
+            score--;
+        }
+        
+        cue_ball_was_struck_this_turn_ = false; // Reset for the next turn/shot attempt
     }
 
     int mouse_x, mouse_y;
@@ -208,13 +227,28 @@ void Table::check_collisions() {
 void Table::check_pockets() {
     std::list<Ball>::iterator i = balls.begin();
     while (i!=balls.end()){
-        if (is_ball_in_pocket(i->get_position())){
+        if (this->is_ball_in_pocket(i->get_position())) {
             i = balls.erase(i);
             ++score;
+            if (shot_in_progress_) {
+                balls_pocketed_this_shot_++;
+            }
         }else{
             ++i;
         }
     }
+}
+
+bool Table::are_all_balls_stationary() const {
+    if (cue_ball.is_moving()) {
+        return false;
+    }
+    for (const Ball& ball : balls) {
+        if (ball.is_moving()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Table::is_ball_in_pocket(const Position& ball_pos) {
