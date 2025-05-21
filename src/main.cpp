@@ -1,3 +1,4 @@
+#define SDL_MAIN_HANDLED
 #include "table.h"
 #include "utility.h"
 #include "menu_scene.h"
