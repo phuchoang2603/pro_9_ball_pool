@@ -1,7 +1,7 @@
 #include "options_scene.h"
 #include <iostream> // For potential debugging
 
-OptionsScene::OptionsScene(SDL_Renderer* renderer, TTF_Font* font, const std::vector<std::string>& options)
+OptionsScene::OptionsScene(SDL_Renderer* /*renderer*/, TTF_Font* font, const std::vector<std::string>& options)
     : current_selected_index(0),
       scene_finished(false),
       scene_should_quit(false),

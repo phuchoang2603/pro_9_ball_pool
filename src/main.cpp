@@ -1,10 +1,10 @@
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL_ttf.h"
-#include <memory>
 #include <iostream>
 
-#include "utility.h"
+#include "scene.h"
 #include "menu_scene.h"
+#include "utility.h"
 #include "table.h"
 
 int main() {
@@ -26,26 +26,43 @@ int main() {
     }
 
     bool application_running = true;
+    Scene* current_scene = new MenuScene(renderer, global_font);
 
     while (application_running) {
-        MenuScene menu(renderer, global_font); 
-        bool global_quit_in_menu = execute_scene(menu, renderer);
-
-        if (global_quit_in_menu || menu.should_quit()) {
+        if (!current_scene) {
             application_running = false;
+            std::cerr << "Error: current_scene is null!" << std::endl;
             break;
         }
 
-        if (menu.is_finished()) {
-            Table table(window, renderer, global_font);
-            table.run();
+        bool global_quit_event_from_execute = execute_scene(*current_scene, renderer);
 
-            if (!table.return_to_main_menu) {
+        if (global_quit_event_from_execute || current_scene->should_quit()) {
+            application_running = false;
+        } else if (current_scene->is_finished()) {
+            Scene* next_scene = nullptr;
+            if (dynamic_cast<MenuScene*>(current_scene) != nullptr) {
+                next_scene = new Table(renderer, global_font);
+            } else if (Table* table = dynamic_cast<Table*>(current_scene)) {
+                if (table->wants_to_return_to_main_menu()) {
+                    next_scene = new MenuScene(renderer, global_font);
+                } else {
+                    std::cout << "Table finished, returning to menu." << std::endl;
+                    next_scene = new MenuScene(renderer, global_font);
+                }
+            }
+            delete current_scene;
+            current_scene = next_scene;
+
+            if (!current_scene) {
                 application_running = false;
             }
-        } else {
-            application_running = false;
         }
+    }
+
+    if (current_scene) { // Clean up the last active scene
+        delete current_scene;
+        current_scene = nullptr;
     }
 
 
