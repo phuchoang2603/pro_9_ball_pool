@@ -11,7 +11,8 @@ Table::Table(SDL_Renderer* renderer, TTF_Font* font, Difficulty difficulty)
       app_should_quit_flag_(false),
       shot_in_progress_(false),
       balls_pocketed_this_shot_(0),
-      cue_ball_was_struck_this_turn_(false){
+      cue_ball_was_struck_this_turn_(false)
+{
     initialize_balls();
     initialize_pockets();
 
@@ -96,7 +97,7 @@ void Table::update() {
     check_pockets();
 
     if (balls.empty()) {
-        reset_balls();
+        this->return_to_main_menu_flag_ = true;
     }
 }
 
@@ -119,6 +120,7 @@ void Table::render(SDL_Renderer* renderer_param) {
 
     render_text(renderer_param, "Score: " + std::to_string(score), 40, 20);
     render_text(renderer_param, "Power: " + std::to_string((int)cue.getPower()), TABLE_WIDTH - 150, 20);
+    render_text(renderer_param, "ESC: Open Pause Menu", 100, TABLE_HEIGHT - 35);
 
     SDL_RenderPresent(renderer_param);
 }
@@ -262,4 +264,8 @@ bool Table::is_ball_in_pocket(const Position& ball_pos) {
         }
     }
     return false;
+}
+
+int Table::get_score() const {
+    return score;
 }

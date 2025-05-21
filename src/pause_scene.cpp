@@ -1,7 +1,9 @@
 #include "pause_scene.h"
 
 PauseScene::PauseScene(SDL_Renderer* renderer, TTF_Font* font)
-    : OptionsScene(renderer, font, {"Resume", "Main Menu"}), // Pass options to base
+    : OptionsScene(renderer, font, 
+                   {"Resume", "Main Menu"}, // Selectable options
+                   {}),            
       wants_to_return_to_menu(false) {}
 
 void PauseScene::on_select(int selected_index) {

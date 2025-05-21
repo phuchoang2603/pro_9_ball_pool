@@ -18,15 +18,13 @@ public:
     Table(SDL_Renderer* renderer, TTF_Font* font, Difficulty difficulty);
     ~Table() override = default;
 
-    // Scene interface overrides
     void handle_event(SDL_Event& e) override;
     void update() override;
     void render(SDL_Renderer* renderer) override;
     bool is_finished() const override;
     bool should_quit() const override;
-
-    // Specific state query for main.cpp
     bool wants_to_return_to_main_menu() const;
+    int get_score() const;
 
 private:
     void initialize_balls();
