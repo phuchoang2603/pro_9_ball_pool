@@ -20,7 +20,7 @@ public:
     float getAngle() const;
     float getPower() const;
     void setPower(float p);
-    void toggle_guideline();
+    void set_guideline_active(bool active);
     void update(Position ball_pos, int mouse_x, int mouse_y);
     void draw(SDL_Renderer* renderer, Position ball_pos) const;
     void draw_guideline(SDL_Renderer *renderer, Position ball_pos,

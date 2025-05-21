@@ -1,15 +1,22 @@
 #include "table.h"
 #include <iostream>
 
-Table::Table(SDL_Renderer* renderer, TTF_Font* font)
+Table::Table(SDL_Renderer* renderer, TTF_Font* font, Difficulty difficulty)
     : renderer_ptr_(renderer),
       game_font_ptr_(font),
+      difficulty_level_(difficulty),
       cue_ball({100, 200}, {255, 255, 255, 255}),
       score(0),
       return_to_main_menu_flag_(false),
       app_should_quit_flag_(false) {
     initialize_balls();
     initialize_pockets();
+
+    if (difficulty_level_ == Difficulty::EASY) {
+        cue.set_guideline_active(true);
+    } else { // HARD
+        cue.set_guideline_active(false);
+    }
 }
 
 void Table::handle_event(SDL_Event& e) {
@@ -38,9 +45,9 @@ void Table::process_game_input(SDL_Event& e) {
 
     if (e.type == SDL_KEYDOWN) {
         switch (e.key.keysym.sym) {
-            case SDLK_g:
-                cue.toggle_guideline();
-                break;
+            // case SDLK_g:
+            //     cue.toggle_guideline();
+            //     break;
             case SDLK_UP:
                 cue.setPower(std::min(cue.getPower() + power_step, max_power));
                 break;

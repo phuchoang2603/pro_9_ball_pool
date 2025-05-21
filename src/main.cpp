@@ -41,16 +41,16 @@ int main() {
             application_running = false;
         } else if (current_scene->is_finished()) {
             Scene* next_scene = nullptr;
-            if (dynamic_cast<MenuScene*>(current_scene) != nullptr) {
-                next_scene = new Table(renderer, global_font);
-            } else if (Table* table = dynamic_cast<Table*>(current_scene)) {
-                if (table->wants_to_return_to_main_menu()) {
-                    next_scene = new MenuScene(renderer, global_font);
-                } else {
-                    std::cout << "Table finished, returning to menu." << std::endl;
-                    next_scene = new MenuScene(renderer, global_font);
-                }
+
+            if (dynamic_cast<MenuScene*>(current_scene)) { // Check if it's a MenuScene instance
+                MenuScene* menu = static_cast<MenuScene*>(current_scene);
+                Difficulty selected_difficulty = menu->get_selected_difficulty();
+                next_scene = new Table(renderer, global_font, selected_difficulty);
+            } else if (dynamic_cast<Table*>(current_scene)) { // Check if it's a Table instance
+                // For now, any finish from Table scene leads back to the MenuScene
+                next_scene = new MenuScene(renderer, global_font);
             }
+
             delete current_scene;
             current_scene = next_scene;
 

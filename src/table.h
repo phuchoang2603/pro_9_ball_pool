@@ -5,6 +5,7 @@
 #include "utility.h"
 #include "ball.h"
 #include "cue.h"
+#include "menu_scene.h" // For Difficulty enum
 #include "pause_scene.h" // For creating PauseScene instance
 
 #include <string>
@@ -14,7 +15,7 @@
 
 class Table : public Scene {
 public:
-    Table(SDL_Renderer* renderer, TTF_Font* font);
+    Table(SDL_Renderer* renderer, TTF_Font* font, Difficulty difficulty);
     ~Table() override = default;
 
     // Scene interface overrides
@@ -42,6 +43,7 @@ private:
 
     SDL_Renderer* renderer_ptr_;
     TTF_Font* game_font_ptr_;
+    Difficulty difficulty_level_;
 
     Ball cue_ball;
     Cue cue;

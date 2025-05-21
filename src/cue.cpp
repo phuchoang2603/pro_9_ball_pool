@@ -1,13 +1,15 @@
 
 #include "cue.h"
 
-Cue::Cue() : position({0, 0}), length(100), angle(0), power(15.0f), show_guideline(false) {}
-
+Cue::Cue() : position({0, 0}), length(100), angle(0), power(15.0f), show_guideline(true) {}
 
 float Cue::getAngle() const { return angle; }
 float Cue::getPower() const { return power; }
 void Cue::setPower(float p) { power = p; }
-void Cue::toggle_guideline() { show_guideline = !show_guideline; }
+
+void Cue::set_guideline_active(bool active) {
+    show_guideline = active;
+}
 
 void Cue::update(Position ball_pos, int mouse_x, int mouse_y) {
     angle = std::atan2(mouse_y-ball_pos.y, mouse_x-ball_pos.x);
@@ -18,7 +20,6 @@ void Cue::draw(SDL_Renderer* renderer, Position ball_pos) const {
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     SDL_RenderDrawLine(renderer, ball_pos.x, ball_pos.y, position.x, position.y);
 }
-
 
 void Cue::draw_guideline(SDL_Renderer* renderer, Position ball_pos, float ball_radius, int table_width, int table_height, const std::list<Ball>& balls) {
     if (!show_guideline) return;
